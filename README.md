@@ -6,7 +6,7 @@ This is a Docker file that will install Latex.
 
 ```bash
 $ docker build -t latex .
-$ docker run -v `pwd`:/tmp latex pdflatex sample.tex
+$ docker run --rm -v `pwd`:/tmp latex pdflatex sample.tex
 ```
 
 
