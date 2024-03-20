@@ -4,7 +4,8 @@ DEFAULT_SRC_FILE="main.tex"
 DOCKER_IMAGE_NAME="latex" # Name of the Docker image containing LaTeX
 
 SCRIPT_DESCRIPTION='Use texlive within a Docker container to compile a LaTeX document'
-SCRIPT_FILENAME="${0##*/}"
+SCRIPT_PATH=$(readlink -f "$0")       # Use `readlink` to return name this script's actual source file,
+SCRIPT_FILENAME="${SCRIPT_PATH##*/}"  #   even if the user is running it via symlink.
 
 function show_usage() {
   echo "${SCRIPT_DESCRIPTION}"
@@ -69,3 +70,11 @@ function run_command_in_docker_container() {
 
 time run_command_in_docker_container \
   latexmk -pdflatex='/usr/bin/pdflatex' -pdf "${src}" # https://mg.readthedocs.io/latexmk.html
+
+
+# ----------------------
+# Tell user where to find/modify this script
+# ----------------------
+
+echo #newline
+echo "Script finished: \`${SCRIPT_PATH}\`"
