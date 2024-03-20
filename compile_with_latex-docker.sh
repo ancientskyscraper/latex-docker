@@ -1,17 +1,23 @@
 #!/bin/env bash
 
+DEFAULT_SRC_FILE="main.tex"
+DOCKER_IMAGE_NAME="latex"	# Name of the Docker image containing LaTeX
+
 SCRIPT_DESCRIPTION='Use texlive within a Docker container to compile a LaTeX document'
 SCRIPT_FILENAME="${0##*/}"
 
 function show_usage() {
 	echo "${SCRIPT_DESCRIPTION}"
 	echo # newline
-	echo "USAGE: ${SCRIPT_FILENAME} --src=sample.tex"
+	echo "USAGE: ${SCRIPT_FILENAME} [--src=MAIN.TEX]"
 	echo # newline
-	echo "    --src=sample.tex    LaTeX document to compile"
-	echo "                           (defaults to: [FEATURE NOT IMPLEMENTED])"
+	echo "    --src=main.tex (optional)   LaTeX document to compile"
+	echo "                                  (defaults to: \`${DEFAULT_SRC_FILE}\`)"
 	echo # newline
 }
+
+# Set default
+src="${DEFAULT_SRC_FILE}"
 
 # Process arguments; https://www.golinuxcloud.com/beginners-guide-to-use-script-arguments-in-bash-with-examples/
 while [ -n "$1" ]; do
@@ -53,7 +59,7 @@ echo #newline
 
 # Wrap a boilerplate `bash` statement that executes an arbitrary command within the Docker container
 function run_command_in_docker_container() {
-	docker run --rm -v "$(pwd):/tmp" latex "$@" # `$@` represents all arguments to this function
+	docker run --rm -v "$(pwd):/tmp" "${DOCKER_IMAGE_NAME}" "$@" # `$@` represents all arguments to this function
 }
 
 
