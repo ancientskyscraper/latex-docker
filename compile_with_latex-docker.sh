@@ -58,9 +58,34 @@ set -eo pipefail
 echo "${SCRIPT_FILENAME}: ${SCRIPT_DESCRIPTION}"
 echo #newline
 
+# Set up ability to set text in bold (https://stackoverflow.com/a/2924755)
+#   Full set of commands: https://www.codequoi.com/en/coloring-terminal-text-tput-and-ansi-escape-sequences
+escape_seq__bold=$(tput bold && tput setaf 4)
+escape_seq__normal=$(tput sgr0)
+
+# Set up a few drawing commands
+bold_hr_top="${escape_seq__bold}╭───────────────────────────────────────────────────────────────────────────────${escape_seq__normal}"
+bold_hr_mid="${escape_seq__bold}├───────────────────────────────────────────────────────────────────────────────${escape_seq__normal}"
+bold_hr_bot="${escape_seq__bold}╰───────────────────────────────────────────────────────────────────────────────${escape_seq__normal}"
+bold_vert_line="${escape_seq__bold}│${escape_seq__normal}"
+
 # Wrap a boilerplate `bash` statement that executes an arbitrary command within the Docker container
 function run_command_in_docker_container() {
-	docker run --rm -v "$(pwd):/tmp" "${DOCKER_IMAGE_NAME}" "$@" # `$@` represents all arguments to this function
+  # Tell user what we're about to do
+  echo "${bold_hr_top}"
+  echo "${bold_vert_line} Running command \`${escape_seq__bold}$*${escape_seq__normal}\`"
+  echo "${bold_vert_line}   within Docker image \`${escape_seq__bold}${DOCKER_IMAGE_NAME}${escape_seq__normal}\` . . ."
+  echo "${bold_hr_mid}"
+
+  # Run the command within Docker (`$@` represents the command passed to this function)
+  docker run --rm -v "$(pwd):/tmp" "${DOCKER_IMAGE_NAME}" "$@" \
+    |& sed "s/^/${bold_vert_line} /" # Prepend each line of output with "│" (N.B.: `|&` redirects both stdout & stderr...)
+
+  # Tell user what happened
+  echo "${bold_hr_mid}"
+  echo "${bold_vert_line} Finished running command \`${escape_seq__bold}$*${escape_seq__normal}\`"
+  echo "${bold_vert_line}   within Docker image \`${escape_seq__bold}${DOCKER_IMAGE_NAME}${escape_seq__normal}\`."
+  echo "${bold_hr_bot}"
 }
 
 
